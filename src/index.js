@@ -10,7 +10,7 @@ import './index.css';
             className="square" 
             onClick={ props.myclick }
         >
-            <span className={( props.winner ) && ( props.winNum.indexOf(props.value)>-1 )?'redColor':""} >{props.value}</span>
+            <span className={( props.winner ) && ( props.winNum.indexOf(props.i)>-1 )?'redColor':""} >{props.value}</span>
         </button>
       )
   }
@@ -22,6 +22,7 @@ import './index.css';
         <Square 
             key={i}
             winner={this.props.winner}
+            winNum={this.props.winNum}
             value={this.props.squares[i]}
             myclick={() => this.props.myclick2(i)}
         />
@@ -76,16 +77,9 @@ import './index.css';
         for (let i = 0; i < lines.length; i++) {
             const [a, b, c] = lines[i];
             if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-                this.setState({
-                    winNum:lines[i],
-                    winner:squares[a]
-                })
-                return squares[a];
+                return {winner:squares[a],winNum:lines[i]};
             }
         }
-        this.setState({
-            winner:null
-        })
         return null;
     }
     handleClick(i){
@@ -93,6 +87,10 @@ import './index.css';
         const current = history[history.length - 1];
         const squares=current.squares.slice()
         if (this.calculateWinner(squares) || squares[i]) {
+            this.setState({
+                stepNumber:history.length,
+                xIsNext:!this.state.xIsNext
+            })
             return;
         }
         squares[i]=this.state.xIsNext?'x':'o'
@@ -104,7 +102,6 @@ import './index.css';
             stepNumber:history.length,
             xIsNext:!this.state.xIsNext
         })
-        this.calculateWinner(current.squares);//更新state
       
     }
     jumpTo(step){
@@ -158,6 +155,7 @@ import './index.css';
                 <div className="game-board">
                     <Board 
                         winner={this.state.winner}
+                        winNum={this.state.winNum}
                         squares={current.squares} 
                         myclick2={ (i)=>{this.handleClick(i)} }
                     />
