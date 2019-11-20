@@ -3,14 +3,13 @@ import ReactDOM from 'react-dom';
 import './index.css';
 
   function Square(props){
-
       return (
         <button 
-            key={props.i}
+            key={props.index}
             className="square" 
             onClick={ props.myclick }
         >
-            <span className={( props.winner ) && ( props.winNum.indexOf(props.i)>-1 )?'redColor':""} >{props.value}</span>
+            <span className={props.winner && props.winNum.indexOf(props.index)>-1 ?'redColor':""} >{props.value}</span>
         </button>
       )
   }
@@ -21,6 +20,7 @@ import './index.css';
       return (
         <Square 
             key={i}
+            index={i}
             winner={this.props.winner}
             winNum={this.props.winNum}
             value={this.props.squares[i]}
@@ -86,21 +86,26 @@ import './index.css';
         const history = this.state.history.slice(0,this.state.stepNumber+1);
         const current = history[history.length - 1];
         const squares=current.squares.slice()
-        if (this.calculateWinner(squares) || squares[i]) {
-            this.setState({
-                stepNumber:history.length,
-                xIsNext:!this.state.xIsNext
-            })
+        if(this.calculateWinner(squares)||history.length==10){
             return;
         }
         squares[i]=this.state.xIsNext?'x':'o'
+        let winResult=this.calculateWinner(squares)
+        if (winResult) {
+            this.setState({
+                winNum:winResult.winNum,
+                winner:winResult.winner 
+            })
+            
+        }
         this.setState({
             history: history.concat([{
                 squares: squares,
             }]),
             clickNum:this.state.clickNum.concat(i),
             stepNumber:history.length,
-            xIsNext:!this.state.xIsNext
+            xIsNext:!this.state.xIsNext,
+           
         })
       
     }
@@ -111,7 +116,7 @@ import './index.css';
           });
         const history=this.state.history.concat();
         const current = history[this.state.stepNumber];
-        this.calculateWinner(current.squares);
+
     }
     sort(){
         this.setState({
