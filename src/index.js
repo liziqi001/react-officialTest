@@ -86,18 +86,17 @@ import './index.css';
         const history = this.state.history.slice(0,this.state.stepNumber+1);
         const current = history[history.length - 1];
         const squares=current.squares.slice()
-        if(this.calculateWinner(squares)||history.length==10){
+        if(this.calculateWinner(squares)||history.length==10||squares[i]){
             return;
         }
         squares[i]=this.state.xIsNext?'x':'o'
         let winResult=this.calculateWinner(squares)
-        if (winResult) {
-            this.setState({
-                winNum:winResult.winNum,
-                winner:winResult.winner 
-            })
-            
-        }
+
+        this.setState({
+            winNum:winResult?winResult.winNum:null,
+            winner:winResult?winResult.winner:null 
+        }) 
+       
         this.setState({
             history: history.concat([{
                 squares: squares,
@@ -110,13 +109,15 @@ import './index.css';
       
     }
     jumpTo(step){
+        const history=this.state.history.concat();
+        const current = history[step];
+        let winResult=this.calculateWinner(current.squares)
         this.setState({
             stepNumber: step,
             xIsNext: (step % 2) === 0,
-          });
-        const history=this.state.history.concat();
-        const current = history[this.state.stepNumber];
-
+            winNum:winResult?winResult.winNum:null,
+            winner:winResult?winResult.winner:null 
+        });
     }
     sort(){
         this.setState({
@@ -127,7 +128,7 @@ import './index.css';
         let [history,current] =['','']
         history=this.state.history.concat();
         current = history[this.state.stepNumber];
-        
+        let winResult=this.calculateWinner(current.squares)
 
         let coordinate=[[1,1],[1,2],[1,3],[2,1],[2,2],[2,3],[3,1],[2,2],[3,3]]
         const moves = history.map((step, move) => {
@@ -148,8 +149,8 @@ import './index.css';
         });
 
         let status;
-        if (this.state.winner) {
-          status = 'Winner: ' + this.state.winner;
+        if (winResult) {
+          status = 'Winner: ' + winResult.winner;
         } else if(this.state.stepNumber!=9){
           status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
         }else if(this.state.stepNumber==9){
@@ -166,9 +167,9 @@ import './index.css';
                     />
                 </div>
                 <div className="game-info">
-                    <div>{status}</div>
+                    <div>{status}</div>      
                     <ol>{this.state.desc?moves.reverse():moves}</ol>
-                </div>
+                </div>   
                 <div ><button onClick={() =>this.sort()}>排序</button></div>
             </div>
       );
@@ -178,7 +179,7 @@ import './index.css';
   // ========================================
   
   ReactDOM.render(
-    <Game />,
+    <Game/>,
     document.getElementById('root')
   );
-  
+ 
